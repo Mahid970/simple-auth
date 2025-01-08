@@ -6,7 +6,8 @@ const SignIn = () => {
   return (
     <div className="bg-base-200 min-h-screen ">
       <div className="w-1/2 flex mx-auto py-24 text-xl font-semibold ">
-        <div className=" p-12  bg-base-100 w-full  shrink-0 shadow-2xl">
+        <div className=" py-8 px-12  bg-base-100 w-full  shrink-0 shadow-2xl">
+          <h1 className="text-3xl text-center  font-bold ">Sign In</h1>
           <form className=" flex flex-col gap-4">
             <div className="">
               <p className="mb-2">Email</p>
