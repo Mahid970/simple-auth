@@ -2,14 +2,23 @@ import { FaSquareXTwitter } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import { BsGithub } from "react-icons/bs";
 import { Link } from "react-router";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import auth from "../firebase/firebase.config";
 import { useState } from "react";
+import UserDetails from "./UserDetails";
+
 const SignIn = () => {
-  const provider = new GoogleAuthProvider();
-  const [user, setUser] = useState({});
+  const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
+  const [user, setUser] = useState(null);
+
   const handleGoogleSignIn = () => {
-    signInWithPopup(auth, provider)
+    signInWithPopup(auth, googleProvider)
       .then((result) => {
         // This gives you a Google Access Token. You can use it to access the Google API.
 
@@ -24,87 +33,120 @@ const SignIn = () => {
         // Handle Errors here.
         const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorMessage);
+        console.log(errorCode + errorMessage);
 
         // ...
+      });
+  };
+  const handleGithubSignIn = () => {
+    signInWithPopup(auth, githubProvider)
+      .then((result) => {
+        const githubUser = result.user;
+        setUser(githubUser);
+        console.log(githubUser);
+      })
+      .catch((error) => {
+        const errorMessage = error.message;
+        console.log(errorMessage);
+      });
+  };
+
+  const handleFromSubmit = (e) => {
+    e.preventDefault();
+    const email = e.target.email.value;
+    const password = e.target.password.value;
+    console.log(email + password);
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // Signed in
+        const user = userCredential.user;
+        setUser(user);
+        // ...
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        console.log(errorCode + errorMessage);
       });
   };
 
   return (
     <div className="bg-base-200 min-h-screen ">
-      <div className="w-1/2 flex mx-auto py-24 text-xl font-semibold ">
-        <div className=" py-8 px-12  bg-base-100 w-full  shrink-0 shadow-2xl">
-          <h1 className="text-3xl text-center  font-bold ">Sign In</h1>
-          <form className=" flex flex-col gap-4">
-            <div className="">
-              <p className="mb-2">Email</p>
-
-              <input
-                type="email"
-                placeholder="Type your email"
-                className=" border-2 font-normal w-full p-2"
-                required
-              />
-            </div>
-            <div className="">
+      {user ? (
+        <UserDetails user={user} setUser={setUser}></UserDetails>
+      ) : (
+        <div className="w-1/2 flex mx-auto py-24 text-xl font-semibold ">
+          <div className=" py-8 px-12  bg-base-100 w-full  shrink-0 shadow-2xl">
+            <h1 className="text-3xl text-center  font-bold ">Sign In</h1>
+            <form onSubmit={handleFromSubmit} className=" flex flex-col gap-4">
               <div className="">
-                <p className="mb-2">Password</p>
+                <p className="mb-2">Email</p>
 
                 <input
-                  type="password"
-                  placeholder="Type your password"
-                  className=" border-2 font-normal  w-full p-2"
+                  type="email"
+                  name="email"
+                  placeholder="Type your email"
+                  className=" border-2 font-normal w-full p-2"
                   required
                 />
               </div>
-              <label className="">
-                <a href="#" className=" text-sm font-normal">
-                  Forgot password?
-                </a>
-              </label>
-            </div>
-            <div className="">
-              <button className="w-full bg-blue-500 py-2 font-bold text-white ">
-                Sign In
-              </button>
-            </div>
-          </form>
-          <div>
-            <div className="divider">Or use one of these options</div>
-            <div className="flex text-4xl ">
-              <div className="mx-auto flex gap-8">
-                <button className="border hover:border-blue-500 p-3">
-                  <FaSquareXTwitter />
-                </button>
-                <button
-                  onClick={handleGoogleSignIn}
-                  className="border hover:border-blue-500 p-3"
-                >
-                  {" "}
-                  <FcGoogle />
-                </button>
-                <button className="border hover:border-blue-500 p-3">
-                  <BsGithub />
+              <div className="">
+                <div className="">
+                  <p className="mb-2">Password</p>
+
+                  <input
+                    type="password"
+                    name="password"
+                    placeholder="Type your password"
+                    className=" border-2 font-normal  w-full p-2"
+                    required
+                  />
+                </div>
+                <label className="">
+                  <a href="#" className=" text-sm font-normal">
+                    Forgot password?
+                  </a>
+                </label>
+              </div>
+              <div className="">
+                <button className="w-full bg-blue-500 py-2 font-bold text-white ">
+                  Sign In
                 </button>
               </div>
+            </form>
+            <div>
+              <div className="divider">Or use one of these options</div>
+              <div className="flex text-4xl ">
+                <div className="mx-auto flex gap-8">
+                  <button className="border hover:border-blue-500 p-3">
+                    <FaSquareXTwitter />
+                  </button>
+                  <button
+                    onClick={handleGoogleSignIn}
+                    className="border hover:border-blue-500 p-3"
+                  >
+                    {" "}
+                    <FcGoogle />
+                  </button>
+                  <button
+                    onClick={handleGithubSignIn}
+                    className="border hover:border-blue-500 p-3"
+                  >
+                    <BsGithub />
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4">
+              <h3 className="text-center text-sm">
+                Do not have an account? Go to{" "}
+                <Link className="text-blue-500" to="/signUp">
+                  Sign Up
+                </Link>{" "}
+                Page{" "}
+              </h3>
             </div>
           </div>
-          <div className="mt-4">
-            <h3 className="text-center text-sm">
-              Do not have an account? Go to{" "}
-              <Link className="text-blue-500" to="/signUp">
-                Sign Up
-              </Link>{" "}
-              Page{" "}
-            </h3>
-          </div>
-        </div>
-      </div>
-      {user && (
-        <div className="w-1/2 text-center mx-auto">
-          <h1 className=" text-3xl font-semibold">{user.displayName}</h1>
-          <p>Email: {user.email}</p>
-          <img className="flex mx-auto w-96" src={user.photoURL} alt="" />
         </div>
       )}
     </div>
