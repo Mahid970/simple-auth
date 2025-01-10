@@ -11,12 +11,15 @@ import {
 import auth from "../firebase/firebase.config";
 import { useState } from "react";
 import UserDetails from "./UserDetails";
+import { FaEye } from "react-icons/fa";
+import { FaEyeSlash } from "react-icons/fa";
 
 const SignIn = () => {
   const googleProvider = new GoogleAuthProvider();
   const githubProvider = new GithubAuthProvider();
   const [user, setUser] = useState(null);
-
+  const [showPassword, setShowPassword] = useState(false);
+  const [showErrorMessage, setShowErrorMessage] = useState("");
   const handleGoogleSignIn = () => {
     signInWithPopup(auth, googleProvider)
       .then((result) => {
@@ -31,9 +34,9 @@ const SignIn = () => {
       })
       .catch((error) => {
         // Handle Errors here.
-        const errorCode = error.code;
+
         const errorMessage = error.message;
-        console.log(errorCode + errorMessage);
+        setShowErrorMessage(errorMessage);
 
         // ...
       });
@@ -47,7 +50,7 @@ const SignIn = () => {
       })
       .catch((error) => {
         const errorMessage = error.message;
-        console.log(errorMessage);
+        setShowErrorMessage(errorMessage);
       });
   };
 
@@ -64,9 +67,8 @@ const SignIn = () => {
         // ...
       })
       .catch((error) => {
-        const errorCode = error.code;
         const errorMessage = error.message;
-        console.log(errorCode + errorMessage);
+        setShowErrorMessage(errorMessage);
       });
   };
 
@@ -94,13 +96,22 @@ const SignIn = () => {
                 <div className="">
                   <p className="mb-2">Password</p>
 
-                  <input
-                    type="password"
-                    name="password"
-                    placeholder="Type your password"
-                    className=" border-2 font-normal  w-full p-2"
-                    required
-                  />
+                  <div className="flex ">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      name="password"
+                      placeholder="Type your password"
+                      className=" border-2 font-normal  w-full p-2"
+                      required
+                    />
+                    <button onClick={() => setShowPassword(!showPassword)}>
+                      {showPassword ? (
+                        <FaEyeSlash></FaEyeSlash>
+                      ) : (
+                        <FaEye></FaEye>
+                      )}
+                    </button>
+                  </div>
                 </div>
                 <label className="">
                   <a href="#" className=" text-sm font-normal">
@@ -114,6 +125,11 @@ const SignIn = () => {
                 </button>
               </div>
             </form>
+            <div className="my-3">
+              <p className="text-red-500 text-center text-sm">
+                {showErrorMessage}
+              </p>
+            </div>
             <div>
               <div className="divider">Or use one of these options</div>
               <div className="flex text-4xl ">
